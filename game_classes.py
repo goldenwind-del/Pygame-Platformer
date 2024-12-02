@@ -93,3 +93,13 @@ class Wall(pygame.sprite.Sprite):
     
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
+
+class Finnish(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__()
+        self.image = pygame.image.load("pixilart-drawing.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image,(width,height))
+        self.rect = self.image.get_rect(topleft = (x,y))
+        self.pos = (x,y)
+    def draw(self, screen):
+        screen.blit(self.image,self.rect)

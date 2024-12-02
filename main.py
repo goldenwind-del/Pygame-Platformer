@@ -1,7 +1,7 @@
 import sys, random, time
 import pygame
 import game_classes
-
+from level_data import levels
 
 # Core Elements and variables
 pygame.init()
@@ -10,19 +10,20 @@ screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 game_active = True
 
-player = game_classes.Player(0, 490, 25, 25, (255, 0, 0),width, height)
-platforms = [
-        game_classes.Platform(850, 200, 120, 20, (0, 255, 0)),
-    game_classes.Platform(525, 200, 100, 20, (0, 255, 0)),
-    game_classes.Platform(325, 300, 100, 20, (0, 255, 0)),
-    game_classes.Platform(125, 400, 100, 20, (0, 255, 0)),
-]
-walls = [
-    game_classes.Wall(800,200,50, 400, (0, 0, 255)),
-]
+font = pygame.font.Font(None, 50)
 
+player = game_classes.Player(0, 490, 25, 25, (255, 0, 0),width, height)
+
+current_level = 1
+current_level_data = levels[current_level]
+
+platforms = [game_classes.Platform(*data) for data in current_level_data["platforms"]]
+walls = [game_classes.Wall(*data) for data in current_level_data["walls"]]
+finnish = game_classes.Finnish(*current_level_data["finnish"][0])
+player = game_classes.Player(*current_level_data["player"][0])
 all_sprites = pygame.sprite.Group()
-all_sprites.add(player, platforms, walls)
+all_sprites.add(finnish, platforms, walls, player)
+
 
 while game_active:
     for event in pygame.event.get():
@@ -35,9 +36,33 @@ while game_active:
     player.move(keys, platforms,walls)
     screen.fill((0,0,0))
 
-
     for sprite in all_sprites:
         sprite.draw(screen)
+
+    if player.rect.colliderect(finnish.rect):
+                
+        if current_level == len(levels):
+            finnish_message = font.render(f"You beat level {current_level}, more levels coming soon", True, 'white', None)
+            finnish_rect = finnish_message.get_rect(center=(480, 270))
+            screen.blit(finnish_message, finnish_rect)
+            
+
+        elif current_level < len(levels):
+            finnish_message = font.render(f"You beat level {current_level}, press enter to move onto the next level", True, 'white', None)
+            finnish_rect = finnish_message.get_rect(center=(480, 270))
+            screen.blit(finnish_message, finnish_rect)
+            pygame.display.flip()
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_RETURN]:
+                current_level += 1
+                current_level_data = levels[current_level]
+                platforms = [game_classes.Platform(*data) for data in current_level_data["platforms"]]
+                walls = [game_classes.Wall(*data) for data in current_level_data["walls"]]
+                finnish = game_classes.Finnish(*current_level_data["finnish"][0])
+                player = game_classes.Player(*current_level_data["player"][0])
+                all_sprites.empty()
+                all_sprites.add(finnish, *platforms, *walls, player)
+
 
     pygame.display.flip()
     clock.tick(60)
