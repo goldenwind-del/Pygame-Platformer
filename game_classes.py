@@ -68,9 +68,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = self.screen_height
             self.velocity_y = 0
             self.is_on_ground = True
-
         if (keys[pygame.K_UP] or keys[pygame.K_w]) and self.is_on_ground:
             self.velocity_y = self.jump_strength
+        
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
